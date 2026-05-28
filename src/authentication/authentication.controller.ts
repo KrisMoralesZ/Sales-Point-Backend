@@ -19,16 +19,19 @@ export class AuthenticationController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.authenticationService.findOne(+id);
+    return this.authenticationService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthenticationDto: UpdateAuthenticationDto) {
-    return this.authenticationService.update(+id, updateAuthenticationDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateAuthenticationDto: UpdateAuthenticationDto,
+  ) {
+    return this.authenticationService.update(id, updateAuthenticationDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.authenticationService.remove(+id);
+    return this.authenticationService.remove(id);
   }
 }

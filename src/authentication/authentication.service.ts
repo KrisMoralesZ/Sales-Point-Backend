@@ -1,96 +1,38 @@
-import { randomUUID } from 'crypto';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
 import { CreateAuthenticationDto } from './dto/create-authentication.dto';
 import { UpdateAuthenticationDto } from './dto/update-authentication.dto';
-import { Authentication } from './entities/authentication.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthenticationService {
-  private readonly users: Authentication[] = [];
+  constructor(private readonly usersService: UsersService) {}
 
-  create(createAuthenticationDto: CreateAuthenticationDto): Authentication {
-    const role = createAuthenticationDto.role;
-
-    if (!this.isValidRole(role)) {
-      throw new BadRequestException('Role must be either Admin or Employe');
-    }
-
-    if (!createAuthenticationDto.name || !createAuthenticationDto.email) {
-      throw new BadRequestException('Name and email are required');
-    }
-
-    const newUser: Authentication = {
-      id: randomUUID(),
-      name: createAuthenticationDto.name,
-      email: createAuthenticationDto.email,
-      role,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    this.users.push(newUser);
-
-    return newUser;
+  async create(createAuthenticationDto: CreateAuthenticationDto): Promise<User> {
+    return this.usersService.create(createAuthenticationDto);
   }
 
-  findAll(): Authentication[] {
-    return [...this.users];
+  async findAll(): Promise<User[]> {
+    return this.usersService.findAll();
   }
 
-  findOne(id: string | number): Authentication {
-    const user = this.users.find((item) => item.id === String(id));
-
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-
-    return user;
+  async findOne(id: string): Promise<User> {
+    return this.usersService.findOne(id);
   }
 
-  update(
-    id: string | number,
+  async update(
+    id: string,
     updateAuthenticationDto: UpdateAuthenticationDto,
-  ): Authentication {
-    const user = this.findOne(id);
-
-    if (
-      updateAuthenticationDto.role &&
-      !this.isValidRole(updateAuthenticationDto.role)
-    ) {
-      throw new BadRequestException('Role must be either Admin or Employe');
-    }
-
-    if (updateAuthenticationDto.name) {
-      user.name = updateAuthenticationDto.name;
-    }
-
-    if (updateAuthenticationDto.email) {
-      user.email = updateAuthenticationDto.email;
-    }
-
-    if (updateAuthenticationDto.role) {
-      user.role = updateAuthenticationDto.role;
-    }
-
-    user.updatedAt = new Date().toISOString();
-
-    return user;
+  ): Promise<User> {
+    return this.usersService.update(id, updateAuthenticationDto);
   }
 
-  remove(id: string | number): Authentication {
-    const user = this.findOne(id);
-    const index = this.users.findIndex((item) => item.id === String(id));
-
-    this.users.splice(index, 1);
-
-    return user;
+  async remove(id: string): Promise<void> {
+    return this.usersService.remove(id);
   }
 
-  private isValidRole(role: string): role is Authentication['role'] {
-    return role === 'Admin' || role === 'Employe';
+  async findByEmail(email: string): Promise<User> {
+    return this.usersService.findByEmail(email);
   }
 }
+
