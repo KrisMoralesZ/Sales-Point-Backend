@@ -8,7 +8,9 @@ import { User } from '../users/entities/user.entity';
 export class AuthenticationService {
   constructor(private readonly usersService: UsersService) {}
 
-  async create(createAuthenticationDto: CreateAuthenticationDto): Promise<User> {
+  async create(
+    createAuthenticationDto: CreateAuthenticationDto,
+  ): Promise<User> {
     return this.usersService.create(createAuthenticationDto);
   }
 
@@ -35,4 +37,3 @@ export class AuthenticationService {
     return this.usersService.findByEmail(email);
   }
 }
-

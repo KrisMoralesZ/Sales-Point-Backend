@@ -65,14 +65,16 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
+    const { role } = updateUserDto as { role?: string };
+    const { email } = updateUserDto as { email?: string };
 
-    if (updateUserDto.role && !this.isValidRole(updateUserDto.role)) {
+    if (role && !this.isValidRole(role)) {
       throw new BadRequestException('Role must be either Admin or Employee');
     }
 
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
+    if (email && email !== user.email) {
       const existingUser = await this.usersRepository.findOne({
-        where: { email: updateUserDto.email },
+        where: { email },
       });
 
       if (existingUser) {

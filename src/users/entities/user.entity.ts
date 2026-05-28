@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserRole } from '@models/user.models';
 
 @Entity({
   name: 'users',
@@ -14,25 +15,25 @@ export class User {
   id: string | undefined;
 
   @Column({ type: 'varchar', length: 255 })
-  name: string;
+  name!: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
-  email: string;
+  email!: string;
 
-  @Column({ type: 'enum', enum: ['Admin', 'Employee'] })
-  role: UserRole;
+  @Column({ type: 'enum', enum: UserRole })
+  role!: UserRole;
 
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     name: 'created_at',
   })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
     name: 'updated_at',
   })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
