@@ -1,4 +1,4 @@
-export type AuthenticationRole = 'Admin' | 'Employe';
+export type AuthenticationRole = 'Admin' | 'Employee';
 
 export class Authentication {
   id: string;
