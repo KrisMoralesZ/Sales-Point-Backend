@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,14 +18,14 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { name, email, role } = createUserDto;
+    const { name, email, password, role } = createUserDto;
 
     if (!this.isValidRole(role)) {
       throw new BadRequestException('Role must be either Admin or Employee');
     }
 
-    if (!name || !email) {
-      throw new BadRequestException('Name and email are required');
+    if (!name || !email || !password) {
+      throw new BadRequestException('Name, email, and password are required');
     }
 
     const existingUser = await this.usersRepository.findOne({
@@ -35,7 +36,13 @@ export class UsersService {
       throw new BadRequestException('Email already in use');
     }
 
-    const user = this.usersRepository.create({ name, email, role });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = this.usersRepository.create({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+    });
     return this.usersRepository.save(user);
   }
 
@@ -66,7 +73,10 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
     const { role } = updateUserDto as { role?: string };
-    const { email } = updateUserDto as { email?: string };
+    const { email, password } = updateUserDto as {
+      email?: string;
+      password?: string;
+    };
 
     if (role && !this.isValidRole(role)) {
       throw new BadRequestException('Role must be either Admin or Employee');
@@ -82,7 +92,13 @@ export class UsersService {
       }
     }
 
-    Object.assign(user, updateUserDto);
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      Object.assign(user, { ...updateUserDto, password: hashedPassword });
+    } else {
+      Object.assign(user, updateUserDto);
+    }
+
     return this.usersRepository.save(user);
   }
 

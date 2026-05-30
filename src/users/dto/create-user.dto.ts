@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsEmail,
+  MinLength,
+} from 'class-validator';
 import { UserRole } from '@models/user.models';
 
 export class CreateUserDto {
@@ -6,9 +12,14 @@ export class CreateUserDto {
   @IsNotEmpty()
   name!: string;
 
-  @IsString()
+  @IsEmail()
   @IsNotEmpty()
   email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  password!: string;
 
   @IsEnum(UserRole)
   @IsNotEmpty()

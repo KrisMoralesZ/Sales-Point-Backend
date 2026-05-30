@@ -1,10 +1,15 @@
 import { UserRole } from '@models/user.models';
-export class Authentication {
+
+export class UserResponseDto {
   id!: string;
+
   name!: string;
+
   email!: string;
-  password!: string;
+
   role!: UserRole;
-  createdAt!: string;
-  updatedAt!: string;
+
+  createdAt!: Date;
+
+  updatedAt!: Date;
 }
