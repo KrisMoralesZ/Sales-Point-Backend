@@ -5,10 +5,24 @@ import { AuthenticationService } from './authentication.service';
 describe('AuthenticationController', () => {
   let controller: AuthenticationController;
 
+  const mockAuthenticationService = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+    findByEmail: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthenticationController],
-      providers: [AuthenticationService],
+      providers: [
+        {
+          provide: AuthenticationService,
+          useValue: mockAuthenticationService,
+        },
+      ],
     }).compile();
 
     controller = module.get<AuthenticationController>(AuthenticationController);
