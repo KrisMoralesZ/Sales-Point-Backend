@@ -1,9 +1,10 @@
+/// <reference types="jest" />
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from '@users/users.service';
-import { AuthenticationService } from './authentication.service';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
-describe('AuthenticationService', () => {
-  let service: AuthenticationService;
+describe('UsersController', () => {
+  let controller: UsersController;
 
   const mockUsersService = {
     create: jest.fn(),
@@ -11,24 +12,24 @@ describe('AuthenticationService', () => {
     findOne: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
-    findByEmail: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      controllers: [UsersController],
       providers: [
-        AuthenticationService,
         {
           provide: UsersService,
           useValue: mockUsersService,
         },
+        { provide: 'USER_REPOSITORY', useValue: {} },
       ],
     }).compile();
 
-    service = module.get<AuthenticationService>(AuthenticationService);
+    controller = module.get<UsersController>(UsersController);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(controller).toBeDefined();
   });
 });

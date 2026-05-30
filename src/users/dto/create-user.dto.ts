@@ -1,15 +1,16 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 import { UserRole } from '@models/user.models';
-export class CreateAuthenticationDto {
+
+export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   name!: string;
 
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
   email!: string;
 
-  @IsString()
+  @IsEnum(UserRole)
   @IsNotEmpty()
   role!: UserRole;
 }
