@@ -3,9 +3,10 @@ export enum UserRole {
   Employee = 'Employee',
 }
 export interface IUser {
-  id: number | string;
+  id: string;
   name: string;
   email: string;
+  password: string;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;

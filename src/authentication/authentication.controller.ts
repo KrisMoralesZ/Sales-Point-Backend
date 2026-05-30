@@ -11,6 +11,7 @@ import { AuthenticationService } from './authentication.service';
 import { CreateAuthenticationDto } from './dto/create-authentication.dto';
 import { UpdateAuthenticationDto } from './dto/update-authentication.dto';
 import { AuthenticationResponseDto } from './dto/authentication-response.dto';
+import { IUser } from '@models/user.models';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -55,8 +56,20 @@ export class AuthenticationController {
     return this.authenticationService.remove(id);
   }
 
-  private mapToResponseDto(user: any): AuthenticationResponseDto {
-    const { password, ...responseDto } = user;
-    return responseDto;
+  private mapToResponseDto(
+    user: IUser | Partial<IUser>,
+  ): AuthenticationResponseDto {
+    const { ...responseDto } = user;
+    return {
+      ...responseDto,
+      createdAt:
+        responseDto.createdAt instanceof Date
+          ? responseDto.createdAt.toISOString()
+          : responseDto.createdAt,
+      updatedAt:
+        responseDto.updatedAt instanceof Date
+          ? responseDto.updatedAt.toISOString()
+          : responseDto.updatedAt,
+    } as AuthenticationResponseDto;
   }
 }

@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { IUser } from '@models/user.models';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -48,8 +49,18 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
-  private mapToResponseDto(user: any): UserResponseDto {
-    const { password, ...responseDto } = user;
-    return responseDto;
+  private mapToResponseDto(user: IUser | Partial<IUser>): UserResponseDto {
+    const { ...responseDto } = user;
+    return {
+      ...responseDto,
+      createdAt:
+        responseDto.createdAt instanceof Date
+          ? responseDto.createdAt.toISOString()
+          : responseDto.createdAt,
+      updatedAt:
+        responseDto.updatedAt instanceof Date
+          ? responseDto.updatedAt.toISOString()
+          : responseDto.updatedAt,
+    } as unknown as UserResponseDto;
   }
 }
