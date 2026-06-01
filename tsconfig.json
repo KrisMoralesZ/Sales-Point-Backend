@@ -18,6 +18,7 @@
       "@users/*": ["src/users/*"],
       "@authentication/*": ["src/authentication/*"],
       "@models/*": ["src/models/*"],
+      "@products/*": ["src/products/*"],
     },
     "incremental": true,
     "skipLibCheck": true,
