@@ -10,14 +10,16 @@ import {
 import { AuthenticationService } from './authentication.service';
 import { CreateAuthenticationDto } from './dto/create-authentication.dto';
 import { UpdateAuthenticationDto } from './dto/update-authentication.dto';
+import { LoginDto } from './dto/login.dto';
 import { AuthenticationResponseDto } from './dto/authentication-response.dto';
 import { IUser } from '@models/user.models';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('authentication')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
-  @Post()
+  @Post('register')
   async create(
     @Body() createAuthenticationDto: CreateAuthenticationDto,
   ): Promise<AuthenticationResponseDto> {
@@ -25,6 +27,16 @@ export class AuthenticationController {
       createAuthenticationDto,
     );
     return this.mapToResponseDto(user);
+  }
+
+  @Post('login')
+  @Public()
+  async login(
+    @Body() loginDto: LoginDto,
+  ): Promise<AuthenticationResponseDto & { token: string }> {
+    const { user, token } = await this.authenticationService.login(loginDto);
+    const responseDto = this.mapToResponseDto(user);
+    return { ...responseDto, token };
   }
 
   @Get()

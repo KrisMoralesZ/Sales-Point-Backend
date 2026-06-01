@@ -12,4 +12,6 @@ export class AuthenticationResponseDto {
   createdAt!: string;
 
   updatedAt!: string;
+
+  token?: string;
 }
