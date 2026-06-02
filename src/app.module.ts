@@ -8,6 +8,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { ProductsModule } from './products/products.module';
+import { Product } from './products/entities/product.entity';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
 import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
 
@@ -24,7 +25,7 @@ import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'sales_point',
-      entities: [User],
+      entities: [User, Product],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
     }),
