@@ -39,7 +39,7 @@ describe('AuthenticationService', () => {
     }).compile();
 
     service = module.get<AuthenticationService>(AuthenticationService);
-    usersService = module.get(UsersService) as jest.Mocked<UsersService>;
+    usersService = module.get(UsersService);
   });
 
   afterEach(() => {
@@ -89,7 +89,7 @@ describe('AuthenticationService', () => {
         name: 'John Doe',
         email: 'john@example.com',
         password: 'password123',
-        role: 'InvalidRole',
+        role: 'InvalidRole' as UserRole,
       };
 
       mockUsersService.create.mockRejectedValue(
@@ -210,7 +210,7 @@ describe('AuthenticationService', () => {
 
     it('should throw BadRequestException when invalid role provided', async () => {
       const updateAuthenticationDto = {
-        role: 'InvalidRole',
+        role: 'InvalidRole' as UserRole,
       };
 
       mockUsersService.update.mockRejectedValue(

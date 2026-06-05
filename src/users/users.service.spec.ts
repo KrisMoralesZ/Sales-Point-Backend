@@ -141,7 +141,7 @@ describe('UsersService', () => {
         name: 'John Doe',
         email: 'john@example.com',
         password: 'password123',
-        role: 'InvalidRole' as any,
+        role: 'InvalidRole' as UserRole,
       };
 
       await expect(service.create(createUserDto)).rejects.toThrow(
@@ -250,7 +250,7 @@ describe('UsersService', () => {
 
     it('should throw BadRequestException when role is invalid', async () => {
       const updateUserDto = {
-        role: 'InvalidRole' as any,
+        role: 'InvalidRole' as UserRole,
       };
 
       (repository.findOne as jest.Mock).mockResolvedValue(mockUser);

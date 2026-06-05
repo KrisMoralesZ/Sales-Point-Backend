@@ -94,15 +94,15 @@ describe('AuthenticationController', () => {
         role: UserRole.Admin,
       };
 
-      const userWithoutPassword = { ...mockUser };
-      delete userWithoutPassword.password;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = mockUser;
       mockAuthenticationService.create.mockResolvedValueOnce(
         userWithoutPassword,
       );
 
       const result = await controller.create(createAuthDto);
 
-      expect(result.password).toBeUndefined();
+      expect(result).not.toHaveProperty('password');
     });
   });
 

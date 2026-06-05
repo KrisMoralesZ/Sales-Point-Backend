@@ -110,4 +110,10 @@ export class UsersService {
   private isValidRole(role: string): boolean {
     return role === 'Admin' || role === 'Employee';
   }
+
+  // Example usage with AuthService
+  async registerUser(createUserDto: CreateUserDto): Promise<User> {
+    const user = await this.create(createUserDto);
+    return user;
+  }
 }
