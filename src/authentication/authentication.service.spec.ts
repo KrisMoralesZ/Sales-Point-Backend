@@ -1,8 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '@users/users.service';
-import { AuthenticationService } from './authentication.service';
+import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { UserRole } from '@models/user.models';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { AuthenticationService } from './authentication.service';
+
+jest.mock('bcrypt');
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
@@ -27,6 +35,14 @@ describe('AuthenticationService', () => {
     findByEmail: jest.fn(),
   };
 
+  const mockJwtService = {
+    sign: jest.fn(),
+    signAsync: jest.fn(),
+    verify: jest.fn(),
+    verifyAsync: jest.fn(),
+    decode: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +50,10 @@ describe('AuthenticationService', () => {
         {
           provide: UsersService,
           useValue: mockUsersService,
+        },
+        {
+          provide: JwtService,
+          useValue: mockJwtService,
         },
       ],
     }).compile();
@@ -98,6 +118,123 @@ describe('AuthenticationService', () => {
 
       await expect(service.create(createAuthenticationDto)).rejects.toThrow(
         BadRequestException,
+      );
+    });
+  });
+
+  describe('login', () => {
+    const loginDto = {
+      email: 'john@example.com',
+      password: 'password123',
+    };
+
+    it('should login successfully and return user with token', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      mockJwtService.sign.mockReturnValue('mock-jwt-token');
+
+      const result = await service.login(loginDto);
+
+      expect(usersService.findByEmail).toHaveBeenCalledWith(loginDto.email);
+
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        loginDto.password,
+        mockUser.password,
+      );
+
+      expect(mockJwtService.sign).toHaveBeenCalledWith({
+        id: mockUser.id,
+        email: mockUser.email,
+        role: mockUser.role,
+      });
+
+      expect(result).toEqual({
+        user: mockUser,
+        token: 'mock-jwt-token',
+      });
+    });
+
+    it('should throw UnauthorizedException when password is invalid', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+
+      expect(mockJwtService.sign).not.toHaveBeenCalled();
+    });
+
+    it('should include user id in jwt payload', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      mockJwtService.sign.mockReturnValue('mock-jwt-token');
+
+      await service.login(loginDto);
+
+      expect(mockJwtService.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockUser.id,
+        }),
+      );
+    });
+
+    it('should include email in jwt payload', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      mockJwtService.sign.mockReturnValue('mock-jwt-token');
+
+      await service.login(loginDto);
+
+      expect(mockJwtService.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: mockUser.email,
+        }),
+      );
+    });
+
+    it('should include role in jwt payload', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      mockJwtService.sign.mockReturnValue('mock-jwt-token');
+
+      await service.login(loginDto);
+
+      expect(mockJwtService.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          role: mockUser.role,
+        }),
+      );
+    });
+
+    it('should propagate jwt sign errors', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      mockJwtService.sign.mockImplementation(() => {
+        throw new Error('JWT error');
+      });
+
+      await expect(service.login(loginDto)).rejects.toThrow('JWT error');
+    });
+
+    it('should throw if user lookup fails', async () => {
+      mockUsersService.findByEmail.mockRejectedValue(
+        new UnauthorizedException(),
+      );
+
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
       );
     });
   });

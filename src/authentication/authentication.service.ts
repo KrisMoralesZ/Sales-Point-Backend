@@ -48,6 +48,10 @@ export class AuthenticationService {
 
     const user = await this.usersService.findByEmail(email);
 
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
