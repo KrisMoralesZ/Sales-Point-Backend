@@ -12,6 +12,8 @@ import { Product } from './products/entities/product.entity';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
 import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
 import { CheckoutModule } from './checkout/checkout.module';
+import { Sale } from './checkout/entities/sale.entity';
+import { SaleItem } from './checkout/entities/sale-item.entity';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { CheckoutModule } from './checkout/checkout.module';
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'sales_point',
-      entities: [User, Product],
+      entities: [User, Product, Sale, SaleItem],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
     }),
