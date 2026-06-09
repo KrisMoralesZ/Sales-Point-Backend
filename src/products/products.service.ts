@@ -56,6 +56,24 @@ export class ProductsService {
     return product;
   }
 
+  async findBySku(code: string): Promise<Product> {
+    const sku = code.trim();
+
+    if (!sku) {
+      throw new BadRequestException('Product code is required');
+    }
+
+    const product = await this.productsRepository.findOne({
+      where: { sku },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with code "${sku}" not found`);
+    }
+
+    return product;
+  }
+
   async update(
     id: string,
     updateProductDto: UpdateProductDto,
