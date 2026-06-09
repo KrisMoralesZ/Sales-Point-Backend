@@ -11,6 +11,7 @@ import { ProductsModule } from './products/products.module';
 import { Product } from './products/entities/product.entity';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
 import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
+import { CheckoutModule } from './checkout/checkout.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
     AuthenticationModule,
     UsersModule,
     ProductsModule,
+    CheckoutModule,
   ],
   controllers: [AppController],
   providers: [
