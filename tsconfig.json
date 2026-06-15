@@ -19,6 +19,7 @@
       "@authentication/*": ["src/authentication/*"],
       "@models/*": ["src/models/*"],
       "@products/*": ["src/products/*"],
+      "@guards/*": ["src/common/guards/*"],
     },
     "incremental": true,
     "skipLibCheck": true,

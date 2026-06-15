@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -10,7 +9,6 @@ import { User } from './users/entities/user.entity';
 import { ProductsModule } from './products/products.module';
 import { Product } from './products/entities/product.entity';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
-import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
 
 @Module({
   imports: [
@@ -35,12 +33,6 @@ import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
     ProductsModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: GlobalJwtAuthGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
