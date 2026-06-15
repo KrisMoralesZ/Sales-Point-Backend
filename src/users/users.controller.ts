@@ -6,14 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { IUser } from '@models/user.models';
+import { AdminGuard } from '@guards/admin.guard';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -25,6 +26,7 @@ export class UsersController {
     status: 201,
     description: 'The user has been successfully created.',
   })
+  @UseGuards(AdminGuard)
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const user = await this.usersService.create(createUserDto);
     return this.mapToResponseDto(user);
@@ -59,6 +61,7 @@ export class UsersController {
     status: 200,
     description: 'The user has been successfully updated.',
   })
+  @UseGuards(AdminGuard)
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -73,6 +76,7 @@ export class UsersController {
     status: 200,
     description: 'The user has been successfully deleted.',
   })
+  @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
