@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityTarget, FindOneOptions } from 'typeorm';
 import { UserRole } from '../models/user.models';
 import { Product } from '../products/entities/product.entity';
 import { User } from '../users/entities/user.entity';
@@ -24,23 +24,22 @@ describe('CheckoutService', () => {
     updatedAt: new Date(),
   };
 
-  const createProduct = (
-    overrides: Partial<Product> = {},
-  ): Product =>
-    ({
-      id: 'product-uuid-1',
-      name: 'Wireless Mouse',
-      description: 'Ergonomic wireless mouse',
-      price: 29.99,
-      quantity: 50,
-      sku: 'SP-001',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      ...overrides,
-    }) as Product;
+  const createProduct = (overrides: Partial<Product> = {}): Product => ({
+    id: 'product-uuid-1',
+    name: 'Wireless Mouse',
+    description: 'Ergonomic wireless mouse',
+    price: 29.99,
+    quantity: 50,
+    sku: 'SP-001',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  });
 
   const setupQueryRunner = (product: Product) => {
-    const savedProducts = new Map<string, Product>([[product.id, { ...product }]]);
+    const savedProducts = new Map<string, Product>([
+      [product.id, { ...product }],
+    ]);
     const savedSales = new Map<string, Sale>();
 
     const queryRunner = {
@@ -50,31 +49,47 @@ describe('CheckoutService', () => {
       rollbackTransaction: jest.fn().mockResolvedValue(undefined),
       release: jest.fn().mockResolvedValue(undefined),
       manager: {
-        findOne: jest.fn().mockImplementation((_entity, options) => {
-          const productId = options.where.id as string;
-          return Promise.resolve(savedProducts.get(productId) ?? null);
-        }),
-        save: jest.fn().mockImplementation((entity) => {
-          if ('sku' in entity) {
-            savedProducts.set(entity.id, entity as Product);
-            return Promise.resolve(entity);
+        findOne: jest
+          .fn()
+          .mockImplementation(
+            (
+              _entity: EntityTarget<Product>,
+              options: FindOneOptions<Product>,
+            ) => {
+              const where = options.where as { id: string };
+              return Promise.resolve(savedProducts.get(where.id) ?? null);
+            },
+          ),
+        save: jest.fn().mockImplementation((entity: Product | Sale) => {
+          if ('employeeId' in entity) {
+            const sale = entity;
+            sale.id = sale.id ?? 'sale-uuid-1';
+            savedSales.set(sale.id, sale);
+            return Promise.resolve(sale);
           }
 
-          const sale = entity as Sale;
-          sale.id = sale.id ?? 'sale-uuid-1';
-          savedSales.set(sale.id, sale);
-          return Promise.resolve(sale);
+          const productEntity = entity;
+          savedProducts.set(productEntity.id, productEntity);
+          return Promise.resolve(productEntity);
         }),
-        create: jest.fn().mockImplementation((_entity, data) => data),
+        create: jest
+          .fn()
+          .mockImplementation(
+            <Entity>(_entity: EntityTarget<Entity>, data: Entity): Entity =>
+              data,
+          ),
       },
     };
 
     dataSource.createQueryRunner.mockReturnValue(queryRunner);
 
-    salesRepository.findOne.mockImplementation(({ where }) => {
-      const sale = savedSales.get(where.id);
-      return Promise.resolve(sale ?? null);
-    });
+    salesRepository.findOne.mockImplementation(
+      (options: FindOneOptions<Sale>) => {
+        const where = options.where as { id: string };
+        const sale = savedSales.get(where.id);
+        return Promise.resolve(sale ?? null);
+      },
+    );
 
     return { queryRunner, savedProducts, savedSales };
   };
