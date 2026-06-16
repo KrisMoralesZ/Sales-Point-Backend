@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,22 +18,24 @@ export class ProductsService {
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
-    const { name, description, price, quantity, sku } = createProductDto;
+    const { name, description, price, quantity, sku, imageUrl } =
+      createProductDto;
 
-    if (!name || price === undefined) {
-      throw new BadRequestException('Name and price are required');
-    }
+    const existingSku = await this.productsRepository.findOne({
+      where: { sku },
+    });
 
-    if (price < 0) {
-      throw new BadRequestException('Price must be a positive number');
+    if (existingSku) {
+      throw new ConflictException(`Product with SKU ${sku} already exists`);
     }
 
     const product = this.productsRepository.create({
       name,
       description,
       price,
-      quantity: quantity || 0,
+      quantity,
       sku,
+      imageUrl,
     });
 
     return this.productsRepository.save(product);
@@ -56,16 +59,60 @@ export class ProductsService {
     return product;
   }
 
+  async findBySku(code: string): Promise<Product> {
+    const sku = code.trim();
+
+    if (!sku) {
+      throw new BadRequestException('Product code is required');
+    }
+
+    const product = await this.productsRepository.findOne({
+      where: { sku },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with code "${sku}" not found`);
+    }
+
+    return product;
+  }
+
+  async findBySku(sku: string): Promise<Product> {
+    const product = await this.productsRepository.findOne({
+      where: { sku },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with SKU ${sku} not found`);
+    }
+
+    return product;
+  }
+
+  async save(product: Product): Promise<Product> {
+    return this.productsRepository.save(product);
+  }
+
   async update(
     id: string,
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
     const product = await this.findOne(id);
 
-    const { price } = updateProductDto;
+    const { price, sku } = updateProductDto;
 
     if (price !== undefined && price < 0) {
       throw new BadRequestException('Price must be a positive number');
+    }
+
+    if (sku && sku !== product.sku) {
+      const existingSku = await this.productsRepository.findOne({
+        where: { sku },
+      });
+
+      if (existingSku) {
+        throw new ConflictException(`Product with SKU ${sku} already exists`);
+      }
     }
 
     Object.assign(product, updateProductDto);
