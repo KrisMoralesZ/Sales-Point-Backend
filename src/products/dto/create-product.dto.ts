@@ -4,6 +4,8 @@ import {
   IsOptional,
   IsPositive,
   MinLength,
+  Min,
+  IsInt,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -19,11 +21,15 @@ export class CreateProductDto {
   @IsPositive()
   price!: number;
 
-  @IsOptional()
-  @IsNumber()
-  quantity?: number;
+  @IsInt()
+  @Min(0)
+  quantity!: number;
+
+  @IsString()
+  @MinLength(1)
+  sku!: string;
 
   @IsOptional()
   @IsString()
-  sku?: string;
+  imageUrl?: string;
 }

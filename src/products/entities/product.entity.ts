@@ -24,8 +24,8 @@ export class Product {
   @Column({ type: 'int', default: 0 })
   quantity!: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  sku?: string;
+  @Column({ type: 'varchar', length: 255, unique: true })
+  sku!: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   imageUrl?: string;
