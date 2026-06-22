@@ -29,6 +29,11 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
+  @Get('lookup/:code')
+  lookupByCode(@Param('code') code: string) {
+    return this.productsService.findBySku(code);
+  }
+
   @Get(':id')
   @Public()
   findOne(@Param('id') id: string) {

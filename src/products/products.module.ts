@@ -9,5 +9,6 @@ import { JwtAuthModule } from '../jwt-auth/jwt-auth.module';
   imports: [TypeOrmModule.forFeature([Product]), JwtAuthModule],
   controllers: [ProductsController],
   providers: [ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}
