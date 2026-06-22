@@ -7,6 +7,15 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const corsOrigins = process.env.CORS_ORIGINS?.split(',').map((origin) =>
+    origin.trim(),
+  ) ?? ['http://localhost:3010', 'http://localhost:3000'];
+
+  app.enableCors({
+    origin: corsOrigins,
+    credentials: true,
+  });
+
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Sales Point API')
