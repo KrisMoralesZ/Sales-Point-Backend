@@ -32,6 +32,9 @@ describe('rankProductsBySkuQuery', () => {
   it('returns matching products ordered by relevance', () => {
     const matches = rankProductsBySkuQuery('50', products);
 
-    expect(matches.map((product) => product.sku)).toEqual(['SP-050', 'SP-0500']);
+    expect(matches.map((product) => product.sku)).toEqual([
+      'SP-050',
+      'SP-0500',
+    ]);
   });
 });

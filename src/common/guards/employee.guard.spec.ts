@@ -30,15 +30,13 @@ describe('EmployeeGuard', () => {
 
   it('allows employee users', async () => {
     await expect(
-      guard.canActivate(
-        createContext({ role: UserRole.Employee } as User),
-      ),
+      guard.canActivate(createContext({ role: UserRole.Employee })),
     ).resolves.toBe(true);
   });
 
   it('rejects admin users', async () => {
     await expect(
-      guard.canActivate(createContext({ role: UserRole.Admin } as User)),
+      guard.canActivate(createContext({ role: UserRole.Admin })),
     ).rejects.toThrow(ForbiddenException);
   });
 

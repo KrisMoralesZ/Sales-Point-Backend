@@ -1,3 +1,4 @@
+import { CanActivate, Type } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { ProductsController } from './products.controller';
@@ -36,7 +37,7 @@ describe('ProductsController', () => {
     const guards = Reflect.getMetadata(
       GUARDS_METADATA,
       ProductsController.prototype.lookupByCode,
-    );
+    ) as Array<Type<CanActivate>> | undefined;
 
     expect(guards).toEqual(expect.arrayContaining([JwtAuthGuard]));
   });

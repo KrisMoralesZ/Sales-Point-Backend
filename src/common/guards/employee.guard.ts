@@ -28,7 +28,9 @@ export class EmployeeGuard extends JwtAuthGuard {
     }
 
     if (user.role !== UserRole.Employee) {
-      throw new ForbiddenException('Only employee users can perform this action');
+      throw new ForbiddenException(
+        'Only employee users can perform this action',
+      );
     }
 
     return true;

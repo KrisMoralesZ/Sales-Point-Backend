@@ -1,3 +1,4 @@
+import { CanActivate, Type } from '@nestjs/common';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -37,7 +38,7 @@ describe('CheckoutController', () => {
     const guards = Reflect.getMetadata(
       GUARDS_METADATA,
       CheckoutController.prototype.complete,
-    );
+    ) as Array<Type<CanActivate>> | undefined;
 
     expect(guards).toEqual(expect.arrayContaining([EmployeeGuard]));
   });
