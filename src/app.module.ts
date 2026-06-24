@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -12,6 +13,7 @@ import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { Sale } from './checkout/entities/sale.entity';
 import { SaleItem } from './checkout/entities/sale-item.entity';
+import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard';
 
 @Module({
   imports: [
@@ -37,6 +39,12 @@ import { SaleItem } from './checkout/entities/sale-item.entity';
     CheckoutModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: GlobalJwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
