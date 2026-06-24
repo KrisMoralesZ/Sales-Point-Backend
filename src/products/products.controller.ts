@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -32,8 +33,14 @@ export class ProductsController {
 
   @Get('lookup/:code')
   @Authenticated()
-  lookupByCode(@Param('code') code: string) {
-    return this.productsService.findBySku(code);
+  async lookupByCode(@Param('code') code: string) {
+    const matches = await this.productsService.searchByCode(code);
+
+    if (matches.length === 0) {
+      throw new NotFoundException(`No products found for code ${code}`);
+    }
+
+    return matches;
   }
 
   @Get(':id')

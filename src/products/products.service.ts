@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { rankProductsBySkuQuery } from './sku-match.util';
 
 @Injectable()
 export class ProductsService {
@@ -69,6 +70,29 @@ export class ProductsService {
     }
 
     return product;
+  }
+
+  async searchByCode(code: string): Promise<Product[]> {
+    const query = code.trim();
+
+    if (!query) {
+      throw new BadRequestException('Product code is required');
+    }
+
+    const exactMatch = await this.productsRepository
+      .createQueryBuilder('product')
+      .where('LOWER(product.sku) = LOWER(:query)', { query })
+      .getOne();
+
+    if (exactMatch) {
+      return [exactMatch];
+    }
+
+    const products = await this.productsRepository.find({
+      order: { sku: 'ASC' },
+    });
+
+    return rankProductsBySkuQuery(query, products);
   }
 
   async save(product: Product): Promise<Product> {
