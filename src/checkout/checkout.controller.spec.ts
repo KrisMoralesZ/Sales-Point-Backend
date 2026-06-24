@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import { CheckoutController } from './checkout.controller';
 import { CheckoutService } from './checkout.service';
 import { Sale } from './entities/sale.entity';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { EmployeeGuard } from '../common/guards/employee.guard';
 
 describe('CheckoutController', () => {
   let controller: CheckoutController;
@@ -33,12 +33,12 @@ describe('CheckoutController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('requires authentication for checkout', () => {
+  it('requires employee role for checkout', () => {
     const guards = Reflect.getMetadata(
       GUARDS_METADATA,
       CheckoutController.prototype.complete,
     );
 
-    expect(guards).toEqual(expect.arrayContaining([JwtAuthGuard]));
+    expect(guards).toEqual(expect.arrayContaining([EmployeeGuard]));
   });
 });

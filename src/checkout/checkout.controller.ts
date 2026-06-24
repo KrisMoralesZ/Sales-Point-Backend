@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { CheckoutService } from './checkout.service';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
-import { Authenticated } from '../common/decorators/authenticated.decorator';
+import { Employee } from '../common/decorators/employee.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 
@@ -10,7 +10,7 @@ export class CheckoutController {
   constructor(private readonly checkoutService: CheckoutService) {}
 
   @Post()
-  @Authenticated()
+  @Employee()
   complete(
     @Body() createCheckoutDto: CreateCheckoutDto,
     @CurrentUser() employee: User,
