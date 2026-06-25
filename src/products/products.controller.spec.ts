@@ -1,6 +1,9 @@
+import { CanActivate, Type } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -28,5 +31,14 @@ describe('ProductsController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('requires authentication for product lookup by code', () => {
+    const guards = Reflect.getMetadata(
+      GUARDS_METADATA,
+      ProductsController.prototype.lookupByCode,
+    ) as Array<Type<CanActivate>> | undefined;
+
+    expect(guards).toEqual(expect.arrayContaining([JwtAuthGuard]));
   });
 });
